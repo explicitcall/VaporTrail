@@ -1,7 +1,7 @@
 import Vapor
 
 public final class VaporTrailMiddleware: Middleware, Service, ServiceType {
-  func respond(to request: Request, chainingTo next: Responder) throws -> Future<Response> {
+  public func respond(to request: Request, chainingTo next: Responder) throws -> Future<Response> {
     let logger = try request.make(ConsoleLogger.self)
 
     let method = request.http.method
@@ -18,7 +18,7 @@ public final class VaporTrailMiddleware: Middleware, Service, ServiceType {
     return try next.respond(to: request)
   }
 
-  static func makeService(for worker: Container) throws -> Self {
+  public static func makeService(for worker: Container) throws -> Self {
     return .init()
   }
 }
