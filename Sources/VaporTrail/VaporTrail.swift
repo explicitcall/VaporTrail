@@ -5,12 +5,13 @@ public final class VaporTrailMiddleware: Middleware, Service, ServiceType {
   public func respond(to request: Request, chainingTo next: Responder) throws -> Future<Response> {
     let logger = try request.make(ConsoleLogger.self)
 
-    let method = request.http.method
+    var reqString = request.http.method.debugDescription
     let path = request.http.uri.path
 
     // not using string interpolation:
     // https://twitter.com/nicklockwood/status/971506873387143168
-    var reqString = method.debugDescription + "@" + path
+    reqString += "@"
+    reqString += path
     if let query = request.http.uri.query {
       reqString += " with query:\(query)"
     }
@@ -21,8 +22,10 @@ public final class VaporTrailMiddleware: Middleware, Service, ServiceType {
     return try next.respond(to: request).map(to: Response.self) { res in
         let end = Date()
         // `end - start` is the length of the request handling, if no error was thrown
-        let sec = end.timeIntervalSinceReferenceDate - start.timeIntervalSinceReferenceDate
-        reqString = sec.description + "s: " + reqString
+        var timing = (end.timeIntervalSinceReferenceDate -
+            start.timeIntervalSinceReferenceDate).description
+        timing += "s: "
+        timing += reqString
         logger.console.output(reqString, style: .init(color: .red))
         return res
     }
