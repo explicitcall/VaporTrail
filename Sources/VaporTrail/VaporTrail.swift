@@ -9,7 +9,7 @@ final class VaporTrail: Middleware, Service, ServiceType {
 
     // not using string interpolation:
     // https://twitter.com/nicklockwood/status/971506873387143168
-    var reqString = method + "@" + path
+    var reqString = method.debugDescription + "@" + path
     if let query = request.http.uri.query {
       reqString += " with query:\(query)"
     }
