@@ -1,6 +1,6 @@
 import Vapor
 
-final class VaporTrail: Middleware, Service, ServiceType {
+final class VaporTrailMiddleware: Middleware, Service, ServiceType {
   func respond(to request: Request, chainingTo next: Responder) throws -> Future<Response> {
     let logger = try request.make(ConsoleLogger.self)
 
