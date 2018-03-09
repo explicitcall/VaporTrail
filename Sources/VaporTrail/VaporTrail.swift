@@ -1,4 +1,5 @@
 import Vapor
+import Foundation
 
 public final class VaporTrailMiddleware: Middleware, Service, ServiceType {
   public func respond(to request: Request, chainingTo next: Responder) throws -> Future<Response> {
@@ -14,8 +15,17 @@ public final class VaporTrailMiddleware: Middleware, Service, ServiceType {
       reqString += " with query:\(query)"
     }
 
-    logger.console.output(reqString, style: .init(color: .red))
-    return try next.respond(to: request)
+    let start = Date()
+
+    // FIXME: better response error handling
+    return try next.respond(to: request).map(to: Response.self) { res in
+        let end = Date()
+        // `end - start` is the length of the request handling, if no error was thrown
+        let sec = end.timeIntervalSinceReferenceDate - start.timeIntervalSinceReferenceDate
+        reqString = sec.description + "s: " + reqString
+        logger.console.output(reqString, style: .init(color: .red))
+        return res
+    }
   }
 
   public static func makeService(for worker: Container) throws -> Self {
